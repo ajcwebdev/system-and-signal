@@ -1,0 +1,29 @@
+{
+  "name": "agent-auth",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun --hot src/server.ts",
+    "server:smoke": "bun run src/server-smoke.ts",
+    "before": "bun run src/before/api.ts",
+    "before:read-only": "bun run src/before/scenario.ts read-only",
+    "before:transfer-audit": "bun run src/before/scenario.ts transfer-audit",
+    "before:smoke": "bun run src/before/smoke.ts",
+    "after:scoped-transfer": "bun run src/after/scoped-transfer-agent.ts",
+    "after:scoped-transfer:smoke": "bun run src/after/scoped-transfer-smoke.ts",
+    "seed": "bun run src/seed.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@auth/agent": "^0.4.5",
+    "@auth/agent-cli": "^0.4.5",
+    "@better-auth/agent-auth": "^0.4.5",
+    "better-auth": "^1.5.6"
+  }
+}
