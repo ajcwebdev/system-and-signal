@@ -1,0 +1,22 @@
+{
+  "name": "sync-agent",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "setup": "bun scripts/setup.ts",
+    "start": "node --env-file=.env index.ts",
+    "dev": "node --env-file=.env --watch index.ts",
+    "check": "bunx tsc --noEmit"
+  },
+  "dependencies": {
+    "@powersync/node": "^0.18.3",
+    "better-sqlite3": "^12.8.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

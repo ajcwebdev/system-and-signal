@@ -1,0 +1,11 @@
+config:
+  edition: 3
+
+streams:
+  projects:
+    auto_subscribe: true
+    query: SELECT * FROM projects
+
+  tasks:
+    auto_subscribe: true
+    query: SELECT * FROM tasks

@@ -27,6 +27,9 @@ data/
 **/data/
 auth.db
 **/auth.db
+sync-agent/agent.db
+sync-agent/agent.db-*
+sync-agent/powersync/service.yaml
 pids/
 *.pid
 *.seed

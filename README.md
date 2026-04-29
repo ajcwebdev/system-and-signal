@@ -13,6 +13,8 @@ README.
 - [`agent-auth`](./agent-auth): Agent Auth Protocol examples comparing shared
   API keys with per-agent identity, scoped capabilities, and independent
   revocation.
+- [`sync-agent`](./sync-agent): PowerSync-backed task-management agent with a
+  durable local SQLite database synced from Postgres.
 
 ## Usage
 
@@ -29,4 +31,12 @@ cd agent-auth
 bun install
 bun run before:smoke
 bun run after:scoped-transfer:smoke
+```
+
+```bash
+cd sync-agent
+bun install
+bun run setup
+docker compose up -d --wait
+bun run start
 ```
