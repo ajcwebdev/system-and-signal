@@ -25,7 +25,7 @@ The runtime seeds default `config/` and `data/` demo files on first run if they 
 
 ## Run
 
-The exact runtime wording can vary by model, but the examples below reflect the current formatter shape and the outputs verified by the walkthrough test suite.
+The exact runtime wording can vary by model, but the examples below reflect the current formatter shape.
 All examples use `bun ah`, which maps to `bun run src/cli.ts run` from `package.json`. Bun forwards the arguments directly, so these commands do not need an extra `--`.
 
 OpenClaw-style run:
@@ -309,16 +309,8 @@ Model Decisions
 - `hermes`: assembled context, automatic `USER.md` updates, SQLite-backed recall, simple skill notes, `execute_code`, and a workspace-restricted sandbox path
 - shared anatomy: the same OpenAI adapter, the same tool loop, and the same session store
 
-## Tests
+## Checks
 
 ```bash
-bun test
+bun run check
 ```
-
-```bash
-bun test:e2e
-```
-
-`bun test:e2e` runs the walkthrough suite, prints the formatted preview to the terminal, and writes `tests/e2e-report.md`.
-
-The runtime requires `OPENAI_API_KEY`, but the test suite uses a test-only model to keep behavior deterministic.
