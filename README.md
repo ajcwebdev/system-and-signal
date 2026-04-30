@@ -37,6 +37,6 @@ bun run after:scoped-transfer:smoke
 cd sync-agent
 bun install
 bun run setup
-docker compose up -d --wait
+bun up
 bun run start
 ```

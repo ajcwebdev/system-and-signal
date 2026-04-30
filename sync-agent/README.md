@@ -34,7 +34,7 @@ bun install
 Generate the development PowerSync service config and `.env`:
 
 ```bash
-bun run setup
+bun setup
 ```
 
 If you want LLM responses, edit `.env` and set:
@@ -46,13 +46,13 @@ ANTHROPIC_API_KEY=sk-ant-...
 Start Postgres, MongoDB, and PowerSync:
 
 ```bash
-docker compose up -d --wait
+bun up
 ```
 
 Run the agent:
 
 ```bash
-bun run start
+bun start
 ```
 
 You should see the first sync complete, followed by an interactive prompt:
@@ -73,11 +73,17 @@ will ask you to set the key before it can answer with the LLM.
 
 | Command | Description |
 | --- | --- |
-| `bun run setup` | Generate `powersync/service.yaml` and `.env` for local development. |
-| `bun run start` | Start the agent once. |
-| `bun run dev` | Start the agent with Node watch mode. |
-| `docker compose up -d --wait` | Start the local Postgres, MongoDB, and PowerSync stack, then wait for healthy services. |
+| `bun install` | Install dependencies from `bun.lock`. |
+| `bun setup` | Generate `powersync/service.yaml` and `.env` for local development. |
+| `bun up` | Start the local Postgres, MongoDB, and PowerSync stack, then wait for healthy services. |
+| `bun powersync:stop` | Stop only the PowerSync service. |
+| `bun powersync:start` | Start only the PowerSync service. |
+| `bun start` | Start the agent once. |
+| `bun dev` | Start the agent with Node watch mode. |
+| `bun check` | Run the TypeScript compiler without emitting files. |
 | `docker compose down` | Stop the local stack. |
+| `docker compose down -v` | Stop the local stack and remove Postgres and MongoDB volumes. |
+| `rm -f agent.db agent.db-*` | Remove the local synced SQLite database and sidecar files. |
 
 ## Project Structure
 
@@ -101,7 +107,7 @@ will ask you to set the key before it can answer with the LLM.
 
 ## Environment
 
-`bun run setup` writes a local `.env` file with:
+`bun setup` writes a local `.env` file with:
 
 ```bash
 POWERSYNC_URL=http://localhost:8080
@@ -163,9 +169,9 @@ To rebuild everything from scratch:
 ```bash
 docker compose down -v
 rm -f agent.db agent.db-*
-bun run setup
-docker compose up -d --wait
-bun run start
+bun setup
+bun up
+bun start
 ```
 
 `docker compose down -v` removes the local Postgres and MongoDB volumes, so any

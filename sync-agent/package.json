@@ -5,6 +5,9 @@
   "private": true,
   "scripts": {
     "setup": "bun scripts/setup.ts",
+    "up": "docker compose up -d --wait",
+    "powersync:start": "docker compose start powersync",
+    "powersync:stop": "docker compose stop powersync",
     "start": "node --env-file=.env index.ts",
     "dev": "node --env-file=.env --watch index.ts",
     "check": "bunx tsc --noEmit"

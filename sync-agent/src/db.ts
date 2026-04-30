@@ -14,7 +14,7 @@ export const db = new PowerSyncDatabase({
 function requiredEnv(name: string) {
   const value = process.env[name];
   if (!value) {
-    throw new Error(`${name} is not set. Run "bun run setup" first.`);
+    throw new Error(`${name} is not set. Run "bun setup" first.`);
   }
   return value;
 }

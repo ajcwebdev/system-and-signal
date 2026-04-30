@@ -74,7 +74,7 @@ export class Connector implements PowerSyncBackendConnector {
 
     if (!endpoint || !token) {
       throw new Error(
-        "POWERSYNC_URL and POWERSYNC_TOKEN must be set. Run \"bun run setup\" first.",
+        "POWERSYNC_URL and POWERSYNC_TOKEN must be set. Run \"bun setup\" first.",
       );
     }
 
