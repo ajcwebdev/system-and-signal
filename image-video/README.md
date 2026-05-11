@@ -134,13 +134,13 @@ Extend a previous Veo output:
 ```bash
 bun iv video \
   --prompt "Continue the same motion as the recorder is picked up and the camera follows it toward a window." \
-  --video out/recorder.mp4 \
+  --video "https://generativelanguage.googleapis.com/v1beta/files/VIDEO_ID:download?alt=media" \
   --resolution 720p \
   --duration 8 \
   --out out/recorder-extended.mp4
 ```
 
-Use extension to build a sequence from a previous Veo result. The new prompt should describe what happens next while preserving continuity.
+Use extension to build a sequence from a previous Veo result. Prefer the file URI from the previous Veo operation for `--video`; the new prompt should describe what happens next while preserving continuity.
 
 ## Validation
 

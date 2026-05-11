@@ -15,9 +15,9 @@ import {
   fileForFormData,
   l,
   paint,
-  readBinary,
-  readInlineData,
   readRestInlineData,
+  readVeoImageData,
+  readVeoVideoData,
   writeBase64,
   writeBytes,
 } from "./utils.ts"
@@ -158,15 +158,7 @@ export async function runVeo(request: VeoRequest): Promise<void> {
   const model = request.model || DEFAULT_VEO_MODEL
   const url = `${GEMINI_BASE_URL}/models/${model}:predictLongRunning`
   const instance = await buildVeoInstance(request)
-
-  const parameters = compactObject({
-    numberOfVideos: 1,
-    aspectRatio: request.aspect,
-    resolution: request.resolution,
-    durationSeconds: request.duration,
-    personGeneration: request.personGeneration,
-    seed: request.seed,
-  })
+  const parameters = buildVeoParameters(request)
 
   const operation = (await fetchJson(url, {
     method: "POST",
@@ -191,38 +183,43 @@ export async function runVeo(request: VeoRequest): Promise<void> {
   l(`${paint("Wrote", "success")} ${paint(request.out, "muted")}`)
 }
 
-async function buildVeoInstance(request: VeoRequest): Promise<Record<string, unknown>> {
+export async function buildVeoInstance(request: VeoRequest): Promise<Record<string, unknown>> {
   const instance: Record<string, unknown> = {
     prompt: request.prompt,
   }
 
   if (request.image) {
-    instance.image = await readInlineData(request.image)
+    instance.image = await readVeoImageData(request.image)
   }
 
   if (request.lastFrame) {
-    instance.lastFrame = await readInlineData(request.lastFrame)
+    instance.lastFrame = await readVeoImageData(request.lastFrame)
   }
 
   if (request.references.length > 0) {
     instance.referenceImages = await Promise.all(
       request.references.map(async (reference) => ({
-        image: await readInlineData(reference),
+        image: await readVeoImageData(reference),
         referenceType: "asset",
       })),
     )
   }
 
   if (request.video) {
-    instance.video = {
-      inlineData: {
-        mimeType: "video/mp4",
-        data: Buffer.from(await readBinary(request.video)).toString("base64"),
-      },
-    }
+    instance.video = await readVeoVideoData(request.video)
   }
 
   return instance
+}
+
+export function buildVeoParameters(request: VeoRequest): Record<string, unknown> {
+  return compactObject({
+    aspectRatio: request.aspect,
+    resolution: request.resolution,
+    durationSeconds: request.duration,
+    personGeneration: request.personGeneration,
+    seed: request.seed,
+  })
 }
 
 async function pollVeoOperation(apiKey: string, operationName: string, pollIntervalSeconds: number): Promise<GeminiOperation> {
@@ -262,6 +259,8 @@ async function resolveVeoVideoBytes(apiKey: string, operation: GeminiOperation):
   if (!uri) {
     throw new Error(`Veo operation did not include downloadable video data: ${JSON.stringify(operation).slice(0, 1000)}`)
   }
+
+  l(`${paint("Video URI", "info")}: ${paint(uri, "muted")}`)
 
   return fetchBinary(uri, {
     method: "GET",

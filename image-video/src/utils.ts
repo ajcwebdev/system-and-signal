@@ -1,7 +1,7 @@
 import { mkdir } from "node:fs/promises"
 import { basename, dirname, extname } from "node:path"
 
-import type { InlineData, RestInlineData } from "./types.ts"
+import type { InlineData, RestInlineData, VeoImageData, VeoVideoData } from "./types.ts"
 
 const RESET = "\x1b[0m"
 
@@ -98,6 +98,24 @@ export async function readRestInlineData(path: string): Promise<RestInlineData> 
   }
 }
 
+export async function readVeoImageData(path: string): Promise<VeoImageData> {
+  return {
+    bytesBase64Encoded: Buffer.from(await readBinary(path)).toString("base64"),
+    mimeType: mimeTypeForPath(path),
+  }
+}
+
+export async function readVeoVideoData(path: string): Promise<VeoVideoData> {
+  if (isUri(path)) {
+    return { uri: path }
+  }
+
+  return {
+    bytesBase64Encoded: Buffer.from(await readBinary(path)).toString("base64"),
+    mimeType: mimeTypeForPath(path),
+  }
+}
+
 export async function fileForFormData(path: string): Promise<File> {
   return new File([await readBinary(path)], basename(path), {
     type: mimeTypeForPath(path),
@@ -124,6 +142,10 @@ export function mimeTypeForPath(path: string): string {
     default:
       return "application/octet-stream"
   }
+}
+
+function isUri(value: string): boolean {
+  return /^(https?:\/\/|gs:\/\/|files\/)/.test(value)
 }
 
 async function ensureParentDirectory(path: string): Promise<void> {

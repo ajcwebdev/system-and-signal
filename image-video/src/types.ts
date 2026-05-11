@@ -27,6 +27,17 @@ export type RestInlineData = {
   }
 }
 
+export type VeoImageData = {
+  bytesBase64Encoded: string
+  mimeType: string
+}
+
+export type VeoVideoData = {
+  uri?: string
+  bytesBase64Encoded?: string
+  mimeType?: string
+}
+
 export type OpenAiImageRequest = {
   apiKey: string
   endpoint: "generations" | "edits"
