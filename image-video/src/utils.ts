@@ -3,12 +3,36 @@ import { basename, dirname, extname } from "node:path"
 
 import type { InlineData, RestInlineData } from "./types.ts"
 
+const RESET = "\x1b[0m"
+
+const LOG_COLORS = {
+  heading: "#7dd3fc",
+  model: "#c084fc",
+  label: "#fbbf24",
+  success: "#34d399",
+  info: "#60a5fa",
+  pending: "#f59e0b",
+  error: "#f87171",
+  muted: "#94a3b8",
+} as const
+
+export type LogTone = keyof typeof LOG_COLORS
+
+export function paint(text: string, tone: LogTone): string {
+  const code = Bun.color(LOG_COLORS[tone], "ansi")
+  if (!code) {
+    return text
+  }
+
+  return `${code}${text}${RESET}`
+}
+
 export function l(...args: unknown[]): void {
   console.log(...args)
 }
 
 export function err(...args: unknown[]): void {
-  console.error(...args)
+  console.error(...args.map((arg) => (typeof arg === "string" ? paint(arg, "error") : arg)))
 }
 
 export async function fetchJson(url: string, init: RequestInit): Promise<unknown> {

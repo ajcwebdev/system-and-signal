@@ -9,7 +9,18 @@ import type {
   OpenAiImageResponse,
   VeoRequest,
 } from "./types.ts"
-import { fetchBinary, fetchJson, fileForFormData, l, readBinary, readInlineData, readRestInlineData, writeBase64, writeBytes } from "./utils.ts"
+import {
+  fetchBinary,
+  fetchJson,
+  fileForFormData,
+  l,
+  paint,
+  readBinary,
+  readInlineData,
+  readRestInlineData,
+  writeBase64,
+  writeBytes,
+} from "./utils.ts"
 
 const OPENAI_BASE_URL = "https://api.openai.com/v1"
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
@@ -76,11 +87,11 @@ export async function runOpenAiImage(request: OpenAiImageRequest): Promise<void>
   }
 
   if (imageResponse.data?.[0]?.revised_prompt) {
-    l(`Revised prompt: ${imageResponse.data[0].revised_prompt}`)
+    l(`${paint("Revised prompt", "info")}: ${imageResponse.data[0].revised_prompt}`)
   }
 
   await writeBase64(request.out, base64)
-  l(`Wrote ${request.out}`)
+  l(`${paint("Wrote", "success")} ${paint(request.out, "muted")}`)
 }
 
 export async function runGeminiImage(request: GeminiImageRequest): Promise<void> {
@@ -135,7 +146,7 @@ export async function runGeminiImage(request: GeminiImageRequest): Promise<void>
   for (const part of partsOut) {
     if (part.text) {
       const label = part.thought ? "Thought summary" : "Text"
-      l(`${label}: ${part.text}`)
+      l(`${paint(label, part.thought ? "pending" : "info")}: ${part.text}`)
     }
   }
 
@@ -144,7 +155,7 @@ export async function runGeminiImage(request: GeminiImageRequest): Promise<void>
   }
 
   await writeBase64(request.out, imageBase64)
-  l(`Wrote ${request.out}`)
+  l(`${paint("Wrote", "success")} ${paint(request.out, "muted")}`)
 }
 
 export async function runVeo(request: VeoRequest): Promise<void> {
@@ -177,11 +188,11 @@ export async function runVeo(request: VeoRequest): Promise<void> {
     throw new Error(`Veo response did not include an operation name: ${JSON.stringify(operation).slice(0, 1000)}`)
   }
 
-  l(`Started ${operation.name}`)
+  l(`${paint("Started", "info")} ${paint(operation.name, "muted")}`)
   const completed = await pollVeoOperation(request.apiKey, operation.name, request.pollIntervalSeconds)
   const videoBytes = await resolveVeoVideoBytes(request.apiKey, completed)
   await writeBytes(request.out, videoBytes)
-  l(`Wrote ${request.out}`)
+  l(`${paint("Wrote", "success")} ${paint(request.out, "muted")}`)
 }
 
 async function buildVeoInstance(request: VeoRequest): Promise<Record<string, unknown>> {
@@ -236,7 +247,7 @@ async function pollVeoOperation(apiKey: string, operationName: string, pollInter
       return operation
     }
 
-    l("Waiting for video generation to complete...")
+    l(`${paint("Waiting", "pending")} for video generation to complete...`)
   }
 }
 

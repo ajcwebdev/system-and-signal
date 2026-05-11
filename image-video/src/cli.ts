@@ -10,7 +10,7 @@ import {
 } from "./models.ts"
 import { runGeminiImage, runOpenAiImage, runVeo } from "./providers.ts"
 import type { FlagValue, ParsedArgs, Provider } from "./types.ts"
-import { err, l } from "./utils.ts"
+import { err, l, paint } from "./utils.ts"
 import { assertValid, validateGeminiImageOptions, validateOpenAiImageOptions, validateVeoOptions } from "./validation.ts"
 
 async function main(): Promise<void> {
@@ -231,40 +231,40 @@ async function video(flags: Record<string, FlagValue>): Promise<void> {
 }
 
 function printModels(): void {
-  l("OpenAI image models")
+  l(paint("OpenAI image models", "heading"))
   for (const [model, config] of Object.entries(OPENAI_IMAGE_MODELS)) {
-    l(`  ${model} - ${config.label}`)
-    l(`    quality: ${config.qualities.join(", ")}`)
-    l(`    format: ${config.formats.join(", ")}`)
-    l(`    background: ${config.backgrounds.join(", ")}`)
-    l(`    size: auto or WIDTHxHEIGHT; edge <= ${config.maxEdge}; pixels ${config.minPixels}-${config.maxPixels}`)
-    l(`    notes: ${config.notes.join("; ")}`)
+    l(`  ${paint(model, "model")} - ${config.label}`)
+    l(`    ${paint("quality", "label")}: ${config.qualities.join(", ")}`)
+    l(`    ${paint("format", "label")}: ${config.formats.join(", ")}`)
+    l(`    ${paint("background", "label")}: ${config.backgrounds.join(", ")}`)
+    l(`    ${paint("size", "label")}: auto or WIDTHxHEIGHT; edge <= ${config.maxEdge}; pixels ${config.minPixels}-${config.maxPixels}`)
+    l(`    ${paint("notes", "label")}: ${config.notes.join("; ")}`)
   }
 
   l("")
-  l("Gemini image models")
+  l(paint("Gemini image models", "heading"))
   for (const [model, config] of Object.entries(GEMINI_IMAGE_MODELS)) {
-    l(`  ${model} - ${config.label}`)
-    l(`    aspect: ${config.aspectRatios.join(", ")}`)
-    l(`    resolution: ${config.resolutions.join(", ")}`)
-    l(`    notes: ${config.notes.join("; ")}`)
+    l(`  ${paint(model, "model")} - ${config.label}`)
+    l(`    ${paint("aspect", "label")}: ${config.aspectRatios.join(", ")}`)
+    l(`    ${paint("resolution", "label")}: ${config.resolutions.join(", ")}`)
+    l(`    ${paint("notes", "label")}: ${config.notes.join("; ")}`)
   }
 
   l("")
-  l("Gemini Veo models")
+  l(paint("Gemini Veo models", "heading"))
   for (const [model, config] of Object.entries(VEO_MODELS)) {
-    l(`  ${model} - ${config.label}`)
-    l(`    aspect: ${config.aspectRatios.join(", ")}`)
-    l(`    duration: ${config.durations.join(", ")}`)
-    l(`    resolution: ${config.resolutions.join(", ")}`)
-    l(`    references: ${config.supportsReferenceImages ? `up to ${config.maxReferenceImages}` : "not supported"}`)
-    l(`    extension: ${config.supportsExtension ? `supported at ${config.extensionResolutions.join(", ")}` : "not supported"}`)
-    l(`    notes: ${config.notes.join("; ")}`)
+    l(`  ${paint(model, "model")} - ${config.label}`)
+    l(`    ${paint("aspect", "label")}: ${config.aspectRatios.join(", ")}`)
+    l(`    ${paint("duration", "label")}: ${config.durations.join(", ")}`)
+    l(`    ${paint("resolution", "label")}: ${config.resolutions.join(", ")}`)
+    l(`    ${paint("references", "label")}: ${config.supportsReferenceImages ? `up to ${config.maxReferenceImages}` : "not supported"}`)
+    l(`    ${paint("extension", "label")}: ${config.supportsExtension ? `supported at ${config.extensionResolutions.join(", ")}` : "not supported"}`)
+    l(`    ${paint("notes", "label")}: ${config.notes.join("; ")}`)
   }
 }
 
 function printHelp(): void {
-  l(`Usage:
+  l(`${paint("Usage", "heading")}:
   bun iv models
   bun iv generate --provider openai --prompt "..." --out image.png [OpenAI flags]
   bun iv generate --provider gemini --prompt "..." --out image.png [Gemini flags]
@@ -272,13 +272,13 @@ function printHelp(): void {
   bun iv edit --provider gemini --image input.png --prompt "..." --out edited.png
   bun iv video --prompt "..." --image first.png --out clip.mp4
 
-Shared flags:
+${paint("Shared flags", "heading")}:
   --provider openai|gemini
   --model MODEL
   --prompt TEXT
   --out PATH
 
-OpenAI image flags:
+${paint("OpenAI image flags", "heading")}:
   --size auto|WIDTHxHEIGHT
   --quality low|medium|high|auto
   --format png|jpeg|webp
@@ -288,14 +288,14 @@ OpenAI image flags:
   --image PATH
   --mask PATH
 
-Gemini image flags:
+${paint("Gemini image flags", "heading")}:
   --aspect RATIO
   --resolution 512|1K|2K|4K
   --image PATH
   --thinking-level minimal|low|medium|high
   --include-thoughts
 
-Veo flags:
+${paint("Veo flags", "heading")}:
   --image FIRST_FRAME
   --last-frame LAST_FRAME
   --reference PATH
