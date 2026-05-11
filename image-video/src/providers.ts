@@ -1,108 +1,18 @@
 import { basename } from "node:path"
 
 import { DEFAULT_VEO_MODEL } from "./models.ts"
-import { fileForFormData, readBinary, readInlineData, readRestInlineData, writeBase64, writeBytes } from "./files.ts"
-import { fetchBinary, fetchJson } from "./http.ts"
+import type {
+  GeminiGenerateContentResponse,
+  GeminiImageRequest,
+  GeminiOperation,
+  OpenAiImageRequest,
+  OpenAiImageResponse,
+  VeoRequest,
+} from "./types.ts"
+import { fetchBinary, fetchJson, fileForFormData, l, readBinary, readInlineData, readRestInlineData, writeBase64, writeBytes } from "./utils.ts"
 
 const OPENAI_BASE_URL = "https://api.openai.com/v1"
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
-
-export type OpenAiImageRequest = {
-  apiKey: string
-  endpoint: "generations" | "edits"
-  model: string
-  prompt: string
-  out: string
-  size?: string
-  quality?: string
-  format?: string
-  compression?: number
-  background?: string
-  moderation?: string
-  images?: string[]
-  mask?: string
-}
-
-export type GeminiImageRequest = {
-  apiKey: string
-  model: string
-  prompt: string
-  out: string
-  aspect?: string
-  resolution?: string
-  images?: string[]
-  thinkingLevel?: string
-  includeThoughts?: boolean
-}
-
-export type VeoRequest = {
-  apiKey: string
-  model: string
-  prompt: string
-  out: string
-  image?: string
-  lastFrame?: string
-  references: string[]
-  video?: string
-  aspect?: string
-  resolution?: string
-  duration?: number
-  personGeneration?: string
-  seed?: number
-  pollIntervalSeconds: number
-}
-
-type OpenAiImageResponse = {
-  data?: Array<{
-    b64_json?: string
-    revised_prompt?: string
-  }>
-}
-
-type GeminiGenerateContentResponse = {
-  candidates?: Array<{
-    content?: {
-      parts?: Array<{
-        text?: string
-        thought?: boolean
-        inlineData?: {
-          mimeType?: string
-          data?: string
-        }
-        inline_data?: {
-          mime_type?: string
-          data?: string
-        }
-      }>
-    }
-  }>
-}
-
-type GeminiOperation = {
-  name?: string
-  done?: boolean
-  error?: {
-    code?: number
-    message?: string
-    status?: string
-  }
-  response?: {
-    generateVideoResponse?: {
-      generatedSamples?: Array<{
-        video?: {
-          uri?: string
-          bytesBase64Encoded?: string
-        }
-      }>
-    }
-    generatedVideos?: Array<{
-      video?: {
-        uri?: string
-        videoBytes?: string
-      }
-    }>
-  }
-}
 
 export async function runOpenAiImage(request: OpenAiImageRequest): Promise<void> {
   const url = `${OPENAI_BASE_URL}/images/${request.endpoint}`
@@ -166,11 +76,11 @@ export async function runOpenAiImage(request: OpenAiImageRequest): Promise<void>
   }
 
   if (imageResponse.data?.[0]?.revised_prompt) {
-    console.log(`Revised prompt: ${imageResponse.data[0].revised_prompt}`)
+    l(`Revised prompt: ${imageResponse.data[0].revised_prompt}`)
   }
 
   await writeBase64(request.out, base64)
-  console.log(`Wrote ${request.out}`)
+  l(`Wrote ${request.out}`)
 }
 
 export async function runGeminiImage(request: GeminiImageRequest): Promise<void> {
@@ -225,7 +135,7 @@ export async function runGeminiImage(request: GeminiImageRequest): Promise<void>
   for (const part of partsOut) {
     if (part.text) {
       const label = part.thought ? "Thought summary" : "Text"
-      console.log(`${label}: ${part.text}`)
+      l(`${label}: ${part.text}`)
     }
   }
 
@@ -234,7 +144,7 @@ export async function runGeminiImage(request: GeminiImageRequest): Promise<void>
   }
 
   await writeBase64(request.out, imageBase64)
-  console.log(`Wrote ${request.out}`)
+  l(`Wrote ${request.out}`)
 }
 
 export async function runVeo(request: VeoRequest): Promise<void> {
@@ -267,11 +177,11 @@ export async function runVeo(request: VeoRequest): Promise<void> {
     throw new Error(`Veo response did not include an operation name: ${JSON.stringify(operation).slice(0, 1000)}`)
   }
 
-  console.log(`Started ${operation.name}`)
+  l(`Started ${operation.name}`)
   const completed = await pollVeoOperation(request.apiKey, operation.name, request.pollIntervalSeconds)
   const videoBytes = await resolveVeoVideoBytes(request.apiKey, completed)
   await writeBytes(request.out, videoBytes)
-  console.log(`Wrote ${request.out}`)
+  l(`Wrote ${request.out}`)
 }
 
 async function buildVeoInstance(request: VeoRequest): Promise<Record<string, unknown>> {
@@ -326,7 +236,7 @@ async function pollVeoOperation(apiKey: string, operationName: string, pollInter
       return operation
     }
 
-    console.log("Waiting for video generation to complete...")
+    l("Waiting for video generation to complete...")
   }
 }
 

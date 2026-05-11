@@ -7,18 +7,11 @@ import {
   GEMINI_IMAGE_MODELS,
   OPENAI_IMAGE_MODELS,
   VEO_MODELS,
-  type Provider,
 } from "./models.ts"
 import { runGeminiImage, runOpenAiImage, runVeo } from "./providers.ts"
+import type { FlagValue, ParsedArgs, Provider } from "./types.ts"
+import { err, l } from "./utils.ts"
 import { assertValid, validateGeminiImageOptions, validateOpenAiImageOptions, validateVeoOptions } from "./validation.ts"
-
-type FlagValue = boolean | string | string[]
-
-type ParsedArgs = {
-  command?: string
-  flags: Record<string, FlagValue>
-  positionals: string[]
-}
 
 async function main(): Promise<void> {
   const parsed = parseArgs(process.argv.slice(2))
@@ -45,7 +38,7 @@ async function main(): Promise<void> {
         throw new Error(`Unknown command "${parsed.command}". Run "bun iv help".`)
     }
   } catch (error) {
-    console.error(error instanceof Error ? error.message : String(error))
+    err(error instanceof Error ? error.message : String(error))
     process.exitCode = 1
   }
 }
@@ -238,40 +231,40 @@ async function video(flags: Record<string, FlagValue>): Promise<void> {
 }
 
 function printModels(): void {
-  console.log("OpenAI image models")
+  l("OpenAI image models")
   for (const [model, config] of Object.entries(OPENAI_IMAGE_MODELS)) {
-    console.log(`  ${model} - ${config.label}`)
-    console.log(`    quality: ${config.qualities.join(", ")}`)
-    console.log(`    format: ${config.formats.join(", ")}`)
-    console.log(`    background: ${config.backgrounds.join(", ")}`)
-    console.log(`    size: auto or WIDTHxHEIGHT; edge <= ${config.maxEdge}; pixels ${config.minPixels}-${config.maxPixels}`)
-    console.log(`    notes: ${config.notes.join("; ")}`)
+    l(`  ${model} - ${config.label}`)
+    l(`    quality: ${config.qualities.join(", ")}`)
+    l(`    format: ${config.formats.join(", ")}`)
+    l(`    background: ${config.backgrounds.join(", ")}`)
+    l(`    size: auto or WIDTHxHEIGHT; edge <= ${config.maxEdge}; pixels ${config.minPixels}-${config.maxPixels}`)
+    l(`    notes: ${config.notes.join("; ")}`)
   }
 
-  console.log("")
-  console.log("Gemini image models")
+  l("")
+  l("Gemini image models")
   for (const [model, config] of Object.entries(GEMINI_IMAGE_MODELS)) {
-    console.log(`  ${model} - ${config.label}`)
-    console.log(`    aspect: ${config.aspectRatios.join(", ")}`)
-    console.log(`    resolution: ${config.resolutions.join(", ")}`)
-    console.log(`    notes: ${config.notes.join("; ")}`)
+    l(`  ${model} - ${config.label}`)
+    l(`    aspect: ${config.aspectRatios.join(", ")}`)
+    l(`    resolution: ${config.resolutions.join(", ")}`)
+    l(`    notes: ${config.notes.join("; ")}`)
   }
 
-  console.log("")
-  console.log("Gemini Veo models")
+  l("")
+  l("Gemini Veo models")
   for (const [model, config] of Object.entries(VEO_MODELS)) {
-    console.log(`  ${model} - ${config.label}`)
-    console.log(`    aspect: ${config.aspectRatios.join(", ")}`)
-    console.log(`    duration: ${config.durations.join(", ")}`)
-    console.log(`    resolution: ${config.resolutions.join(", ")}`)
-    console.log(`    references: ${config.supportsReferenceImages ? `up to ${config.maxReferenceImages}` : "not supported"}`)
-    console.log(`    extension: ${config.supportsExtension ? `supported at ${config.extensionResolutions.join(", ")}` : "not supported"}`)
-    console.log(`    notes: ${config.notes.join("; ")}`)
+    l(`  ${model} - ${config.label}`)
+    l(`    aspect: ${config.aspectRatios.join(", ")}`)
+    l(`    duration: ${config.durations.join(", ")}`)
+    l(`    resolution: ${config.resolutions.join(", ")}`)
+    l(`    references: ${config.supportsReferenceImages ? `up to ${config.maxReferenceImages}` : "not supported"}`)
+    l(`    extension: ${config.supportsExtension ? `supported at ${config.extensionResolutions.join(", ")}` : "not supported"}`)
+    l(`    notes: ${config.notes.join("; ")}`)
   }
 }
 
 function printHelp(): void {
-  console.log(`Usage:
+  l(`Usage:
   bun iv models
   bun iv generate --provider openai --prompt "..." --out image.png [OpenAI flags]
   bun iv generate --provider gemini --prompt "..." --out image.png [Gemini flags]

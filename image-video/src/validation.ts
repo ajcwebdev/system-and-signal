@@ -6,47 +6,10 @@ import {
   OPENAI_IMAGE_MODELS,
   VEO_MODELS,
 } from "./models.ts"
+import type { GeminiImageValidationOptions, OpenAiImageValidationOptions, ParsedSize, VeoValidationOptions } from "./types.ts"
 
 const THINKING_LEVELS = ["minimal", "low", "medium", "high"] as const
 const PERSON_GENERATION_VALUES = ["allow_all", "allow_adult", "dont_allow"] as const
-
-export type OpenAiImageValidationOptions = {
-  model: string
-  size?: string
-  quality?: string
-  format?: string
-  compression?: number
-  background?: string
-  moderation?: string
-}
-
-export type GeminiImageValidationOptions = {
-  model: string
-  aspect?: string
-  resolution?: string
-  thinkingLevel?: string
-  includeThoughts?: boolean
-  imageCount?: number
-}
-
-export type VeoValidationOptions = {
-  model: string
-  aspect?: string
-  resolution?: string
-  duration?: number
-  personGeneration?: string
-  seed?: number
-  pollInterval?: number
-  hasImage?: boolean
-  hasLastFrame?: boolean
-  referenceCount?: number
-  hasVideo?: boolean
-}
-
-export type ParsedSize = {
-  width: number
-  height: number
-}
 
 export function parseSize(size: string): ParsedSize | undefined {
   const match = /^([1-9]\d*)x([1-9]\d*)$/.exec(size)

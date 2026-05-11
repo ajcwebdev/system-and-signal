@@ -1,3 +1,5 @@
+import type { GeminiImageModel, OpenAiImageModel, VeoModel } from "./types.ts"
+
 export const OPENAI_IMAGE_MODELS = {
   "gpt-image-2": {
     label: "GPT Image 2",
@@ -84,11 +86,6 @@ export const VEO_MODELS = {
     ],
   },
 } as const
-
-export type Provider = "openai" | "gemini"
-export type OpenAiImageModel = keyof typeof OPENAI_IMAGE_MODELS
-export type GeminiImageModel = keyof typeof GEMINI_IMAGE_MODELS
-export type VeoModel = keyof typeof VEO_MODELS
 
 export const DEFAULT_OPENAI_IMAGE_MODEL: OpenAiImageModel = "gpt-image-2"
 export const DEFAULT_GEMINI_IMAGE_MODEL: GeminiImageModel = "gemini-3.1-flash-image-preview"
