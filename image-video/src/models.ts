@@ -26,12 +26,10 @@ export const GEMINI_IMAGE_MODELS = {
     provider: "gemini",
     resolutions: ["512", "1K", "2K", "4K"],
     aspectRatios: ["1:1", "1:4", "1:8", "2:3", "3:2", "3:4", "4:1", "4:3", "4:5", "5:4", "8:1", "9:16", "16:9", "21:9"],
-    supportsGoogleSearch: true,
     supportsThinking: true,
     notes: [
       "best default for high-volume Gemini image generation",
       "512, 1K, 2K, and 4K output sizes",
-      "Google Search grounding is available, with people-image limitations from search results",
     ],
   },
 } as const

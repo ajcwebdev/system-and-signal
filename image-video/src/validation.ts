@@ -26,7 +26,6 @@ export type GeminiImageValidationOptions = {
   resolution?: string
   thinkingLevel?: string
   includeThoughts?: boolean
-  googleSearch?: boolean
   imageCount?: number
 }
 

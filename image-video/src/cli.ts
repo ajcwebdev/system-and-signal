@@ -98,7 +98,6 @@ async function generate(flags: Record<string, FlagValue>): Promise<void> {
       resolution: optionalString(flags, "resolution"),
       thinkingLevel,
       includeThoughts: booleanFlag(flags, "include-thoughts"),
-      googleSearch: booleanFlag(flags, "google-search"),
       imageCount: images.length,
     }),
   )
@@ -113,7 +112,6 @@ async function generate(flags: Record<string, FlagValue>): Promise<void> {
     images,
     thinkingLevel,
     includeThoughts: booleanFlag(flags, "include-thoughts"),
-    googleSearch: booleanFlag(flags, "google-search"),
   })
 }
 
@@ -171,7 +169,6 @@ async function edit(flags: Record<string, FlagValue>): Promise<void> {
       resolution: optionalString(flags, "resolution"),
       thinkingLevel,
       includeThoughts: booleanFlag(flags, "include-thoughts"),
-      googleSearch: booleanFlag(flags, "google-search"),
       imageCount: images.length,
     }),
   )
@@ -186,7 +183,6 @@ async function edit(flags: Record<string, FlagValue>): Promise<void> {
     images,
     thinkingLevel,
     includeThoughts: booleanFlag(flags, "include-thoughts"),
-    googleSearch: booleanFlag(flags, "google-search"),
   })
 }
 
@@ -305,7 +301,6 @@ Gemini image flags:
   --image PATH
   --thinking-level minimal|low|medium|high
   --include-thoughts
-  --google-search
 
 Veo flags:
   --image FIRST_FRAME

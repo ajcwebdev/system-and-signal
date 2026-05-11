@@ -33,7 +33,6 @@ export type GeminiImageRequest = {
   images?: string[]
   thinkingLevel?: string
   includeThoughts?: boolean
-  googleSearch?: boolean
 }
 
 export type VeoRequest = {
@@ -76,7 +75,6 @@ type GeminiGenerateContentResponse = {
         }
       }>
     }
-    groundingMetadata?: unknown
   }>
 }
 
@@ -208,7 +206,6 @@ export async function runGeminiImage(request: GeminiImageRequest): Promise<void>
         parts,
       },
     ],
-    tools: request.googleSearch ? [{ google_search: {} }] : undefined,
     generationConfig,
   })
 
