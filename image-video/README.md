@@ -57,19 +57,18 @@ bun iv generate \
 
 This writes a Nano Banana 2 image to `out/gemini-recorder.png`. Gemini image generation uses aspect ratio and resolution tiers instead of exact pixel dimensions.
 
-Edit with OpenAI using an input image and optional mask:
+Edit with OpenAI using an input image and prompt instructions:
 
 ```bash
 bun iv edit \
   --provider openai \
   --image out/openai-recorder.png \
-  --mask masks/screen.png \
   --prompt "Replace only the display with a crisp waveform UI. Keep the desk and product unchanged." \
   --size 1536x1024 \
   --out out/openai-recorder-edit.png
 ```
 
-Use the OpenAI edit path when you need a targeted change. The mask lets you constrain the edit to a specific region while preserving the rest of the image.
+Use the OpenAI edit path when you want the source image to anchor the result and the prompt to describe both the change and what should stay fixed.
 
 Edit with Gemini Nano Banana 2 using one or more reference images:
 
@@ -103,19 +102,6 @@ bun iv video \
 
 The CLI starts a long-running Veo operation, polls until it completes, downloads the video, and writes the MP4 to the path in `--out`.
 
-Interpolate between first and last frames:
-
-```bash
-bun iv video \
-  --prompt "A smooth cinematic transition from packed travel kit to deployed recording setup." \
-  --image frames/first.png \
-  --last-frame frames/last.png \
-  --duration 8 \
-  --out out/interpolation.mp4
-```
-
-Use interpolation when you already know the starting and ending frame. Veo fills in the motion between them.
-
 Use up to three reference images with Veo 3.1 or Veo 3.1 Fast:
 
 ```bash
@@ -130,26 +116,13 @@ bun iv video \
 
 Use references when you want separate images to define the product, material, and visual mood for the generated clip.
 
-Extend a previous Veo output:
-
-```bash
-bun iv video \
-  --prompt "Continue the same motion as the recorder is picked up and the camera follows it toward a window." \
-  --video out/recorder.mp4 \
-  --resolution 720p \
-  --duration 8 \
-  --out out/recorder-extended.mp4
-```
-
-Use extension to build a sequence from a previous Veo result. The new prompt should describe what happens next while preserving continuity.
-
 ## Validation
 
 The CLI validates the model-specific configuration before making API calls:
 
 - `gpt-image-2`: flexible `WIDTHxHEIGHT` sizes, multiple-of-16 edges, pixel limits, no transparent background, and compression only for JPEG/WebP.
 - `gemini-3.1-flash-image-preview`: the latest Gemini native image model, also called Nano Banana 2, with the supported aspect-ratio matrix plus `512`, `1K`, `2K`, and `4K`.
-- Veo 3.1 variants: `16:9` or `9:16`, `4`, `6`, or `8` seconds, 8 seconds for `1080p` and `4k`, reference-image limits, and extension restrictions.
+- Veo 3.1 variants: `16:9` or `9:16`, `4`, `6`, or `8` seconds, 8 seconds for `1080p` and `4k`, and reference-image limits.
 
 ## Development
 

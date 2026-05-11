@@ -1,18 +1,68 @@
 import { mkdir } from "node:fs/promises"
 import { basename, dirname, extname } from "node:path"
 
-export type InlineData = {
-  inlineData: {
-    mimeType: string
-    data: string
+import type { InlineData, RestInlineData, VeoImageData } from "./types.ts"
+
+const RESET = "\x1b[0m"
+
+const LOG_COLORS = {
+  heading: "#7dd3fc",
+  model: "#c084fc",
+  label: "#fbbf24",
+  success: "#34d399",
+  info: "#60a5fa",
+  pending: "#f59e0b",
+  error: "#f87171",
+  muted: "#94a3b8",
+} as const
+
+export type LogTone = keyof typeof LOG_COLORS
+
+export function paint(text: string, tone: LogTone): string {
+  const code = Bun.color(LOG_COLORS[tone], "ansi")
+  if (!code) {
+    return text
+  }
+
+  return `${code}${text}${RESET}`
+}
+
+export function l(...args: unknown[]): void {
+  console.log(...args)
+}
+
+export function err(...args: unknown[]): void {
+  console.error(...args.map((arg) => (typeof arg === "string" ? paint(arg, "error") : arg)))
+}
+
+export async function fetchJson(url: string, init: RequestInit): Promise<unknown> {
+  const response = await fetch(url, init)
+  const text = await response.text()
+
+  if (!response.ok) {
+    throw new Error(`${init.method ?? "GET"} ${url} failed with ${response.status}: ${text.slice(0, 1500)}`)
+  }
+
+  if (text.length === 0) {
+    return {}
+  }
+
+  try {
+    return JSON.parse(text) as unknown
+  } catch (error) {
+    throw new Error(`Expected JSON from ${url}, received: ${text.slice(0, 500)}`)
   }
 }
 
-export type RestInlineData = {
-  inline_data: {
-    mime_type: string
-    data: string
+export async function fetchBinary(url: string, init: RequestInit): Promise<Uint8Array> {
+  const response = await fetch(url, init)
+
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(`${init.method ?? "GET"} ${url} failed with ${response.status}: ${text.slice(0, 1500)}`)
   }
+
+  return new Uint8Array(await response.arrayBuffer())
 }
 
 export async function readBinary(path: string): Promise<Uint8Array> {
@@ -45,6 +95,13 @@ export async function readRestInlineData(path: string): Promise<RestInlineData> 
       mime_type: mimeTypeForPath(path),
       data,
     },
+  }
+}
+
+export async function readVeoImageData(path: string): Promise<VeoImageData> {
+  return {
+    bytesBase64Encoded: Buffer.from(await readBinary(path)).toString("base64"),
+    mimeType: mimeTypeForPath(path),
   }
 }
 

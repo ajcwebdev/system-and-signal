@@ -1,3 +1,5 @@
+import type { GeminiImageModel, OpenAiImageModel, VeoModel } from "./types.ts"
+
 export const OPENAI_IMAGE_MODELS = {
   "gpt-image-2": {
     label: "GPT Image 2",
@@ -26,12 +28,10 @@ export const GEMINI_IMAGE_MODELS = {
     provider: "gemini",
     resolutions: ["512", "1K", "2K", "4K"],
     aspectRatios: ["1:1", "1:4", "1:8", "2:3", "3:2", "3:4", "4:1", "4:3", "4:5", "5:4", "8:1", "9:16", "16:9", "21:9"],
-    supportsGoogleSearch: true,
     supportsThinking: true,
     notes: [
       "best default for high-volume Gemini image generation",
       "512, 1K, 2K, and 4K output sizes",
-      "Google Search grounding is available, with people-image limitations from search results",
     ],
   },
 } as const
@@ -45,12 +45,9 @@ export const VEO_MODELS = {
     resolutions: ["720p", "1080p", "4k"],
     supportsReferenceImages: true,
     maxReferenceImages: 3,
-    supportsExtension: true,
-    extensionResolutions: ["720p"],
     notes: [
-      "supports text-to-video, image-to-video, interpolation, reference images, and extension",
+      "supports text-to-video, image-to-video, and reference images",
       "1080p and 4k require 8 second duration",
-      "extension output is 720p",
     ],
   },
   "veo-3.1-fast-generate-preview": {
@@ -61,8 +58,6 @@ export const VEO_MODELS = {
     resolutions: ["720p", "1080p", "4k"],
     supportsReferenceImages: true,
     maxReferenceImages: 3,
-    supportsExtension: true,
-    extensionResolutions: ["720p"],
     notes: [
       "faster, lower-cost Veo 3.1 variant",
       "supports the same high-level input flows as Veo 3.1 Preview",
@@ -77,20 +72,13 @@ export const VEO_MODELS = {
     resolutions: ["720p", "1080p"],
     supportsReferenceImages: false,
     maxReferenceImages: 0,
-    supportsExtension: false,
-    extensionResolutions: [],
     notes: [
       "supports text-to-video and image-to-video",
-      "does not support reference images or extension",
+      "does not support reference images",
       "1080p requires 8 second duration",
     ],
   },
 } as const
-
-export type Provider = "openai" | "gemini"
-export type OpenAiImageModel = keyof typeof OPENAI_IMAGE_MODELS
-export type GeminiImageModel = keyof typeof GEMINI_IMAGE_MODELS
-export type VeoModel = keyof typeof VEO_MODELS
 
 export const DEFAULT_OPENAI_IMAGE_MODEL: OpenAiImageModel = "gpt-image-2"
 export const DEFAULT_GEMINI_IMAGE_MODEL: GeminiImageModel = "gemini-3.1-flash-image-preview"

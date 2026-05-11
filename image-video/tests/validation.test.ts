@@ -102,13 +102,4 @@ describe("Veo 3.1 validation", () => {
       }).join("\n"),
     ).toContain("does not support --reference")
   })
-
-  test("requires first frame when last frame is present", () => {
-    expect(
-      validateVeoOptions({
-        model: "veo-3.1-generate-preview",
-        hasLastFrame: true,
-      }).join("\n"),
-    ).toContain("--last-frame requires --image")
-  })
 })

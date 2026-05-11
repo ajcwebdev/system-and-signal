@@ -7,18 +7,11 @@ import {
   GEMINI_IMAGE_MODELS,
   OPENAI_IMAGE_MODELS,
   VEO_MODELS,
-  type Provider,
 } from "./models.ts"
 import { runGeminiImage, runOpenAiImage, runVeo } from "./providers.ts"
+import type { FlagValue, ParsedArgs, Provider } from "./types.ts"
+import { err, l, paint } from "./utils.ts"
 import { assertValid, validateGeminiImageOptions, validateOpenAiImageOptions, validateVeoOptions } from "./validation.ts"
-
-type FlagValue = boolean | string | string[]
-
-type ParsedArgs = {
-  command?: string
-  flags: Record<string, FlagValue>
-  positionals: string[]
-}
 
 async function main(): Promise<void> {
   const parsed = parseArgs(process.argv.slice(2))
@@ -45,7 +38,7 @@ async function main(): Promise<void> {
         throw new Error(`Unknown command "${parsed.command}". Run "bun iv help".`)
     }
   } catch (error) {
-    console.error(error instanceof Error ? error.message : String(error))
+    err(error instanceof Error ? error.message : String(error))
     process.exitCode = 1
   }
 }
@@ -98,7 +91,6 @@ async function generate(flags: Record<string, FlagValue>): Promise<void> {
       resolution: optionalString(flags, "resolution"),
       thinkingLevel,
       includeThoughts: booleanFlag(flags, "include-thoughts"),
-      googleSearch: booleanFlag(flags, "google-search"),
       imageCount: images.length,
     }),
   )
@@ -113,7 +105,6 @@ async function generate(flags: Record<string, FlagValue>): Promise<void> {
     images,
     thinkingLevel,
     includeThoughts: booleanFlag(flags, "include-thoughts"),
-    googleSearch: booleanFlag(flags, "google-search"),
   })
 }
 
@@ -156,7 +147,6 @@ async function edit(flags: Record<string, FlagValue>): Promise<void> {
       background: optionalString(flags, "background"),
       moderation: optionalString(flags, "moderation"),
       images,
-      mask: optionalString(flags, "mask"),
     })
     return
   }
@@ -171,7 +161,6 @@ async function edit(flags: Record<string, FlagValue>): Promise<void> {
       resolution: optionalString(flags, "resolution"),
       thinkingLevel,
       includeThoughts: booleanFlag(flags, "include-thoughts"),
-      googleSearch: booleanFlag(flags, "google-search"),
       imageCount: images.length,
     }),
   )
@@ -186,11 +175,16 @@ async function edit(flags: Record<string, FlagValue>): Promise<void> {
     images,
     thinkingLevel,
     includeThoughts: booleanFlag(flags, "include-thoughts"),
-    googleSearch: booleanFlag(flags, "google-search"),
   })
 }
 
 async function video(flags: Record<string, FlagValue>): Promise<void> {
+  rejectUnknownFlags(
+    flags,
+    ["provider", "model", "prompt", "out", "reference", "image", "aspect", "resolution", "duration", "person-generation", "seed", "poll-interval"],
+    "video",
+  )
+
   const provider = readProvider(flags, "gemini")
   if (provider !== "gemini") {
     throw new Error("video currently supports --provider gemini only")
@@ -201,8 +195,6 @@ async function video(flags: Record<string, FlagValue>): Promise<void> {
   const out = optionalString(flags, "out") ?? "video.mp4"
   const references = stringList(flags, "reference")
   const image = optionalString(flags, "image")
-  const lastFrame = optionalString(flags, "last-frame")
-  const videoInput = optionalString(flags, "video")
   const duration = optionalInteger(flags, "duration")
   const seed = optionalInteger(flags, "seed")
   const pollIntervalSeconds = optionalInteger(flags, "poll-interval") ?? 10
@@ -217,9 +209,7 @@ async function video(flags: Record<string, FlagValue>): Promise<void> {
       seed,
       pollInterval: pollIntervalSeconds,
       hasImage: image !== undefined,
-      hasLastFrame: lastFrame !== undefined,
       referenceCount: references.length,
-      hasVideo: videoInput !== undefined,
     }),
   )
 
@@ -229,9 +219,7 @@ async function video(flags: Record<string, FlagValue>): Promise<void> {
     prompt,
     out,
     image,
-    lastFrame,
     references,
-    video: videoInput,
     aspect: optionalString(flags, "aspect"),
     resolution: optionalString(flags, "resolution"),
     duration,
@@ -242,54 +230,53 @@ async function video(flags: Record<string, FlagValue>): Promise<void> {
 }
 
 function printModels(): void {
-  console.log("OpenAI image models")
+  l(paint("OpenAI image models", "heading"))
   for (const [model, config] of Object.entries(OPENAI_IMAGE_MODELS)) {
-    console.log(`  ${model} - ${config.label}`)
-    console.log(`    quality: ${config.qualities.join(", ")}`)
-    console.log(`    format: ${config.formats.join(", ")}`)
-    console.log(`    background: ${config.backgrounds.join(", ")}`)
-    console.log(`    size: auto or WIDTHxHEIGHT; edge <= ${config.maxEdge}; pixels ${config.minPixels}-${config.maxPixels}`)
-    console.log(`    notes: ${config.notes.join("; ")}`)
+    l(`  ${paint(model, "model")} - ${config.label}`)
+    l(`    ${paint("quality", "label")}: ${config.qualities.join(", ")}`)
+    l(`    ${paint("format", "label")}: ${config.formats.join(", ")}`)
+    l(`    ${paint("background", "label")}: ${config.backgrounds.join(", ")}`)
+    l(`    ${paint("size", "label")}: auto or WIDTHxHEIGHT; edge <= ${config.maxEdge}; pixels ${config.minPixels}-${config.maxPixels}`)
+    l(`    ${paint("notes", "label")}: ${config.notes.join("; ")}`)
   }
 
-  console.log("")
-  console.log("Gemini image models")
+  l("")
+  l(paint("Gemini image models", "heading"))
   for (const [model, config] of Object.entries(GEMINI_IMAGE_MODELS)) {
-    console.log(`  ${model} - ${config.label}`)
-    console.log(`    aspect: ${config.aspectRatios.join(", ")}`)
-    console.log(`    resolution: ${config.resolutions.join(", ")}`)
-    console.log(`    notes: ${config.notes.join("; ")}`)
+    l(`  ${paint(model, "model")} - ${config.label}`)
+    l(`    ${paint("aspect", "label")}: ${config.aspectRatios.join(", ")}`)
+    l(`    ${paint("resolution", "label")}: ${config.resolutions.join(", ")}`)
+    l(`    ${paint("notes", "label")}: ${config.notes.join("; ")}`)
   }
 
-  console.log("")
-  console.log("Gemini Veo models")
+  l("")
+  l(paint("Gemini Veo models", "heading"))
   for (const [model, config] of Object.entries(VEO_MODELS)) {
-    console.log(`  ${model} - ${config.label}`)
-    console.log(`    aspect: ${config.aspectRatios.join(", ")}`)
-    console.log(`    duration: ${config.durations.join(", ")}`)
-    console.log(`    resolution: ${config.resolutions.join(", ")}`)
-    console.log(`    references: ${config.supportsReferenceImages ? `up to ${config.maxReferenceImages}` : "not supported"}`)
-    console.log(`    extension: ${config.supportsExtension ? `supported at ${config.extensionResolutions.join(", ")}` : "not supported"}`)
-    console.log(`    notes: ${config.notes.join("; ")}`)
+    l(`  ${paint(model, "model")} - ${config.label}`)
+    l(`    ${paint("aspect", "label")}: ${config.aspectRatios.join(", ")}`)
+    l(`    ${paint("duration", "label")}: ${config.durations.join(", ")}`)
+    l(`    ${paint("resolution", "label")}: ${config.resolutions.join(", ")}`)
+    l(`    ${paint("references", "label")}: ${config.supportsReferenceImages ? `up to ${config.maxReferenceImages}` : "not supported"}`)
+    l(`    ${paint("notes", "label")}: ${config.notes.join("; ")}`)
   }
 }
 
 function printHelp(): void {
-  console.log(`Usage:
+  l(`${paint("Usage", "heading")}:
   bun iv models
   bun iv generate --provider openai --prompt "..." --out image.png [OpenAI flags]
   bun iv generate --provider gemini --prompt "..." --out image.png [Gemini flags]
-  bun iv edit --provider openai --image input.png --prompt "..." --out edited.png [--mask mask.png]
+  bun iv edit --provider openai --image input.png --prompt "..." --out edited.png
   bun iv edit --provider gemini --image input.png --prompt "..." --out edited.png
   bun iv video --prompt "..." --image first.png --out clip.mp4
 
-Shared flags:
+${paint("Shared flags", "heading")}:
   --provider openai|gemini
   --model MODEL
   --prompt TEXT
   --out PATH
 
-OpenAI image flags:
+${paint("OpenAI image flags", "heading")}:
   --size auto|WIDTHxHEIGHT
   --quality low|medium|high|auto
   --format png|jpeg|webp
@@ -297,21 +284,17 @@ OpenAI image flags:
   --background auto|opaque
   --moderation auto|low
   --image PATH
-  --mask PATH
 
-Gemini image flags:
+${paint("Gemini image flags", "heading")}:
   --aspect RATIO
   --resolution 512|1K|2K|4K
   --image PATH
   --thinking-level minimal|low|medium|high
   --include-thoughts
-  --google-search
 
-Veo flags:
+${paint("Veo flags", "heading")}:
   --image FIRST_FRAME
-  --last-frame LAST_FRAME
   --reference PATH
-  --video PREVIOUS_VEO_MP4
   --aspect 16:9|9:16
   --resolution 720p|1080p|4k
   --duration 4|6|8
@@ -367,6 +350,15 @@ function readProvider(flags: Record<string, FlagValue>, fallback: Provider): Pro
   }
 
   return provider
+}
+
+function rejectUnknownFlags(flags: Record<string, FlagValue>, allowed: string[], command: string): void {
+  const allowedSet = new Set(allowed)
+  for (const key of Object.keys(flags)) {
+    if (!allowedSet.has(key)) {
+      throw new Error(`Unsupported flag "--${key}" for ${command}`)
+    }
+  }
 }
 
 function requiredString(flags: Record<string, FlagValue>, key: string): string {

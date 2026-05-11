@@ -6,48 +6,10 @@ import {
   OPENAI_IMAGE_MODELS,
   VEO_MODELS,
 } from "./models.ts"
+import type { GeminiImageValidationOptions, OpenAiImageValidationOptions, ParsedSize, VeoValidationOptions } from "./types.ts"
 
 const THINKING_LEVELS = ["minimal", "low", "medium", "high"] as const
 const PERSON_GENERATION_VALUES = ["allow_all", "allow_adult", "dont_allow"] as const
-
-export type OpenAiImageValidationOptions = {
-  model: string
-  size?: string
-  quality?: string
-  format?: string
-  compression?: number
-  background?: string
-  moderation?: string
-}
-
-export type GeminiImageValidationOptions = {
-  model: string
-  aspect?: string
-  resolution?: string
-  thinkingLevel?: string
-  includeThoughts?: boolean
-  googleSearch?: boolean
-  imageCount?: number
-}
-
-export type VeoValidationOptions = {
-  model: string
-  aspect?: string
-  resolution?: string
-  duration?: number
-  personGeneration?: string
-  seed?: number
-  pollInterval?: number
-  hasImage?: boolean
-  hasLastFrame?: boolean
-  referenceCount?: number
-  hasVideo?: boolean
-}
-
-export type ParsedSize = {
-  width: number
-  height: number
-}
 
 export function parseSize(size: string): ParsedSize | undefined {
   const match = /^([1-9]\d*)x([1-9]\d*)$/.exec(size)
@@ -200,41 +162,21 @@ export function validateVeoOptions(options: VeoValidationOptions): string[] {
     errors.push("--reference workflows require --duration 8")
   }
 
-  if (options.hasVideo && !model.supportsExtension) {
-    errors.push(`${options.model} does not support --video extension input`)
-  }
-
-  if (options.hasVideo && !includesReadonly(model.extensionResolutions, resolution)) {
-    errors.push(`--video extension supports only these resolutions for ${options.model}: ${model.extensionResolutions.join(", ") || "none"}`)
-  }
-
-  if (options.hasVideo && duration !== 8) {
-    errors.push("--video extension requires --duration 8")
-  }
-
-  if (options.hasLastFrame && !options.hasImage) {
-    errors.push("--last-frame requires --image as the first frame")
-  }
-
-  if (options.hasVideo && (options.hasImage || options.hasLastFrame || referenceCount > 0)) {
-    errors.push("--video extension cannot be combined with --image, --last-frame, or --reference")
-  }
-
-  if (referenceCount > 0 && (options.hasImage || options.hasLastFrame)) {
-    errors.push("--reference workflows cannot be combined with --image or --last-frame")
+  if (referenceCount > 0 && options.hasImage) {
+    errors.push("--reference workflows cannot be combined with --image")
   }
 
   if (options.personGeneration) {
     if (!includesReadonly(PERSON_GENERATION_VALUES, options.personGeneration)) {
       errors.push(`--person-generation must be one of: ${PERSON_GENERATION_VALUES.join(", ")}`)
     } else {
-      const visualInput = Boolean(options.hasImage || options.hasLastFrame || referenceCount > 0)
+      const visualInput = Boolean(options.hasImage || referenceCount > 0)
       if (visualInput && options.personGeneration !== "allow_adult") {
-        errors.push("--person-generation must be allow_adult for image-to-video, interpolation, and reference-image Veo 3.1 workflows")
+        errors.push("--person-generation must be allow_adult for image-to-video and reference-image Veo 3.1 workflows")
       }
 
       if (!visualInput && options.personGeneration !== "allow_all") {
-        errors.push("--person-generation must be allow_all for text-to-video and extension Veo 3.1 workflows")
+        errors.push("--person-generation must be allow_all for text-to-video Veo 3.1 workflows")
       }
     }
   }
