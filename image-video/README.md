@@ -57,19 +57,18 @@ bun iv generate \
 
 This writes a Nano Banana 2 image to `out/gemini-recorder.png`. Gemini image generation uses aspect ratio and resolution tiers instead of exact pixel dimensions.
 
-Edit with OpenAI using an input image and optional mask:
+Edit with OpenAI using an input image and prompt instructions:
 
 ```bash
 bun iv edit \
   --provider openai \
   --image out/openai-recorder.png \
-  --mask masks/screen.png \
   --prompt "Replace only the display with a crisp waveform UI. Keep the desk and product unchanged." \
   --size 1536x1024 \
   --out out/openai-recorder-edit.png
 ```
 
-Use the OpenAI edit path when you need a targeted change. The mask lets you constrain the edit to a specific region while preserving the rest of the image.
+Use the OpenAI edit path when you want the source image to anchor the result and the prompt to describe both the change and what should stay fixed.
 
 Edit with Gemini Nano Banana 2 using one or more reference images:
 

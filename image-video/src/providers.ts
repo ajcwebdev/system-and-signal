@@ -69,10 +69,6 @@ export async function runOpenAiImage(request: OpenAiImageRequest): Promise<void>
       formData.append("image[]", await fileForFormData(image), basename(image))
     }
 
-    if (request.mask) {
-      formData.set("mask", await fileForFormData(request.mask), basename(request.mask))
-    }
-
     response = await fetchJson(url, {
       method: "POST",
       headers,

@@ -40,7 +40,6 @@ export type OpenAiImageRequest = {
   background?: string
   moderation?: string
   images?: string[]
-  mask?: string
 }
 
 export type GeminiImageRequest = {

@@ -147,7 +147,6 @@ async function edit(flags: Record<string, FlagValue>): Promise<void> {
       background: optionalString(flags, "background"),
       moderation: optionalString(flags, "moderation"),
       images,
-      mask: optionalString(flags, "mask"),
     })
     return
   }
@@ -268,7 +267,7 @@ function printHelp(): void {
   bun iv models
   bun iv generate --provider openai --prompt "..." --out image.png [OpenAI flags]
   bun iv generate --provider gemini --prompt "..." --out image.png [Gemini flags]
-  bun iv edit --provider openai --image input.png --prompt "..." --out edited.png [--mask mask.png]
+  bun iv edit --provider openai --image input.png --prompt "..." --out edited.png
   bun iv edit --provider gemini --image input.png --prompt "..." --out edited.png
   bun iv video --prompt "..." --image first.png --out clip.mp4
 
@@ -286,7 +285,6 @@ ${paint("OpenAI image flags", "heading")}:
   --background auto|opaque
   --moderation auto|low
   --image PATH
-  --mask PATH
 
 ${paint("Gemini image flags", "heading")}:
   --aspect RATIO
