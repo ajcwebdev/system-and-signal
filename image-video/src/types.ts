@@ -32,12 +32,6 @@ export type VeoImageData = {
   mimeType: string
 }
 
-export type VeoVideoData = {
-  uri?: string
-  bytesBase64Encoded?: string
-  mimeType?: string
-}
-
 export type OpenAiImageRequest = {
   apiKey: string
   endpoint: "generations" | "edits"
@@ -71,9 +65,7 @@ export type VeoRequest = {
   prompt: string
   out: string
   image?: string
-  lastFrame?: string
   references: string[]
-  video?: string
   aspect?: string
   resolution?: string
   duration?: number
@@ -162,9 +154,7 @@ export type VeoValidationOptions = {
   seed?: number
   pollInterval?: number
   hasImage?: boolean
-  hasLastFrame?: boolean
   referenceCount?: number
-  hasVideo?: boolean
 }
 
 export type ParsedSize = {

@@ -45,12 +45,9 @@ export const VEO_MODELS = {
     resolutions: ["720p", "1080p", "4k"],
     supportsReferenceImages: true,
     maxReferenceImages: 3,
-    supportsExtension: true,
-    extensionResolutions: ["720p"],
     notes: [
-      "supports text-to-video, image-to-video, interpolation, reference images, and extension",
+      "supports text-to-video, image-to-video, and reference images",
       "1080p and 4k require 8 second duration",
-      "extension output is 720p",
     ],
   },
   "veo-3.1-fast-generate-preview": {
@@ -61,8 +58,6 @@ export const VEO_MODELS = {
     resolutions: ["720p", "1080p", "4k"],
     supportsReferenceImages: true,
     maxReferenceImages: 3,
-    supportsExtension: true,
-    extensionResolutions: ["720p"],
     notes: [
       "faster, lower-cost Veo 3.1 variant",
       "supports the same high-level input flows as Veo 3.1 Preview",
@@ -77,11 +72,9 @@ export const VEO_MODELS = {
     resolutions: ["720p", "1080p"],
     supportsReferenceImages: false,
     maxReferenceImages: 0,
-    supportsExtension: false,
-    extensionResolutions: [],
     notes: [
       "supports text-to-video and image-to-video",
-      "does not support reference images or extension",
+      "does not support reference images",
       "1080p requires 8 second duration",
     ],
   },

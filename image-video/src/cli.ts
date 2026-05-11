@@ -179,6 +179,12 @@ async function edit(flags: Record<string, FlagValue>): Promise<void> {
 }
 
 async function video(flags: Record<string, FlagValue>): Promise<void> {
+  rejectUnknownFlags(
+    flags,
+    ["provider", "model", "prompt", "out", "reference", "image", "aspect", "resolution", "duration", "person-generation", "seed", "poll-interval"],
+    "video",
+  )
+
   const provider = readProvider(flags, "gemini")
   if (provider !== "gemini") {
     throw new Error("video currently supports --provider gemini only")
@@ -189,8 +195,6 @@ async function video(flags: Record<string, FlagValue>): Promise<void> {
   const out = optionalString(flags, "out") ?? "video.mp4"
   const references = stringList(flags, "reference")
   const image = optionalString(flags, "image")
-  const lastFrame = optionalString(flags, "last-frame")
-  const videoInput = optionalString(flags, "video")
   const duration = optionalInteger(flags, "duration")
   const seed = optionalInteger(flags, "seed")
   const pollIntervalSeconds = optionalInteger(flags, "poll-interval") ?? 10
@@ -205,9 +209,7 @@ async function video(flags: Record<string, FlagValue>): Promise<void> {
       seed,
       pollInterval: pollIntervalSeconds,
       hasImage: image !== undefined,
-      hasLastFrame: lastFrame !== undefined,
       referenceCount: references.length,
-      hasVideo: videoInput !== undefined,
     }),
   )
 
@@ -217,9 +219,7 @@ async function video(flags: Record<string, FlagValue>): Promise<void> {
     prompt,
     out,
     image,
-    lastFrame,
     references,
-    video: videoInput,
     aspect: optionalString(flags, "aspect"),
     resolution: optionalString(flags, "resolution"),
     duration,
@@ -257,7 +257,6 @@ function printModels(): void {
     l(`    ${paint("duration", "label")}: ${config.durations.join(", ")}`)
     l(`    ${paint("resolution", "label")}: ${config.resolutions.join(", ")}`)
     l(`    ${paint("references", "label")}: ${config.supportsReferenceImages ? `up to ${config.maxReferenceImages}` : "not supported"}`)
-    l(`    ${paint("extension", "label")}: ${config.supportsExtension ? `supported at ${config.extensionResolutions.join(", ")}` : "not supported"}`)
     l(`    ${paint("notes", "label")}: ${config.notes.join("; ")}`)
   }
 }
@@ -295,9 +294,7 @@ ${paint("Gemini image flags", "heading")}:
 
 ${paint("Veo flags", "heading")}:
   --image FIRST_FRAME
-  --last-frame LAST_FRAME
   --reference PATH
-  --video PREVIOUS_VEO_MP4
   --aspect 16:9|9:16
   --resolution 720p|1080p|4k
   --duration 4|6|8
@@ -353,6 +350,15 @@ function readProvider(flags: Record<string, FlagValue>, fallback: Provider): Pro
   }
 
   return provider
+}
+
+function rejectUnknownFlags(flags: Record<string, FlagValue>, allowed: string[], command: string): void {
+  const allowedSet = new Set(allowed)
+  for (const key of Object.keys(flags)) {
+    if (!allowedSet.has(key)) {
+      throw new Error(`Unsupported flag "--${key}" for ${command}`)
+    }
+  }
 }
 
 function requiredString(flags: Record<string, FlagValue>, key: string): string {

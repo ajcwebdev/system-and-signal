@@ -17,7 +17,6 @@ import {
   paint,
   readRestInlineData,
   readVeoImageData,
-  readVeoVideoData,
   writeBase64,
   writeBytes,
 } from "./utils.ts"
@@ -192,10 +191,6 @@ export async function buildVeoInstance(request: VeoRequest): Promise<Record<stri
     instance.image = await readVeoImageData(request.image)
   }
 
-  if (request.lastFrame) {
-    instance.lastFrame = await readVeoImageData(request.lastFrame)
-  }
-
   if (request.references.length > 0) {
     instance.referenceImages = await Promise.all(
       request.references.map(async (reference) => ({
@@ -203,10 +198,6 @@ export async function buildVeoInstance(request: VeoRequest): Promise<Record<stri
         referenceType: "asset",
       })),
     )
-  }
-
-  if (request.video) {
-    instance.video = await readVeoVideoData(request.video)
   }
 
   return instance
