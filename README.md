@@ -50,6 +50,18 @@ bun up
 bun run start
 ```
 
+### [`agent-safety`](./agent-safety)
+
+`agent-safety` lives in [`agent-safety`](./agent-safety). It is a Bun CLI for auditing agent safety boundaries, classifying risky commands and paths, and rendering Codex or Claude configuration snippets.
+
+```bash
+cd agent-safety
+bun install
+bun safety profiles
+bun safety audit --target .
+bun run check
+```
+
 ### [`image-video`](./image-video)
 
 `image-video` lives in [`image-video`](./image-video). It is a Bun CLI for running live OpenAI image generation, Gemini image generation and editing, and Gemini Veo 3.1 video generation flows from the terminal.

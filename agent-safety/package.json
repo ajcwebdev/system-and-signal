@@ -1,0 +1,19 @@
+{
+  "name": "agent-safety",
+  "module": "src/cli.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "safety": "bun run src/cli.ts",
+    "start": "bun run src/cli.ts",
+    "check": "bunx tsc --noEmit",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
+
